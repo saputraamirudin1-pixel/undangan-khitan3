@@ -199,16 +199,20 @@
     <!-- MAIN CONTAINER UNDANGAN -->
     <div id="mainContent" class="max-w-md mx-auto bg-ivory min-h-screen shadow-2xl relative pb-20 hidden border-x border-goldCustom-500/20 w-full overflow-x-hidden">
 
-        <!-- AUDIO PLAYER ELEMENT (Lagu Islami Syahdu) -->
+        <!-- AUDIO PLAYER ELEMENT (Audio Backsound MP3 Islami Jernih & Nyaring) -->
         <audio id="bgAudio" loop preload="auto">
-            <source src="https://assets.mixkit.co/music/preview/mixkit-middle-eastern-mystery-102.mp3" type="audio/mpeg">
-            Browser Anda tidak mendukung elemen audio.
+            <!-- Source MP3 Utama: Instrumen Gambus & Oud Islami High Quality -->
+            <source src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_c8b9b4f9fb.mp3?filename=cheerful-arabic-oriental-instrumental-19349.mp3" type="audio/mpeg">
+            <!-- Source MP3 Cadangan 1 -->
+            <source src="https://cdn.pixabay.com/download/audio/2023/04/18/audio_6a2468305c.mp3?filename=happy-arabic-celebration-147311.mp3" type="audio/mpeg">
+            <!-- Source MP3 Cadangan 2 -->
+            <source src="https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=arabic-oriental-music-112702.mp3" type="audio/mpeg">
         </audio>
 
-        <!-- AUDIO TOGGLE CONTROLLER -->
-        <div class="fixed top-4 right-4 z-40">
-            <button id="audioBtn" onclick="toggleAudio()" class="w-10 h-10 bg-emeraldCustom-900/90 text-goldCustom-400 rounded-full shadow-xl flex items-center justify-center border border-goldCustom-400/60 backdrop-blur-sm focus:outline-none transition active:scale-95">
-                <i id="audioIcon" class="fa-solid fa-music"></i>
+        <!-- FLOATING AUDIO TOGGLE CONTROLLER -->
+        <div class="fixed top-4 right-4 z-40 flex items-center gap-2">
+            <button id="audioBtn" onclick="toggleAudio()" aria-label="Kontrol Musik Backsound" class="w-11 h-11 bg-emeraldCustom-900/90 text-goldCustom-400 rounded-full shadow-2xl flex items-center justify-center border-2 border-goldCustom-400/80 backdrop-blur-md focus:outline-none transition transform active:scale-95">
+                <i id="audioIcon" class="fa-solid fa-music text-base"></i>
             </button>
         </div>
 
@@ -271,8 +275,7 @@
         <!-- ACARA & COUNTDOWN SECTION -->
         <section class="p-4 sm:p-6 text-center">
             <div class="mb-3">
-                <span class="text-[10px] font-bold uppercase tracking-[0.2em] text-goldCustom-600 bg-goldCustom-100 px-3 py-1 rounded-full">Agenda Utama</span>
-            </div>
+               
             <h3 class="text-lg sm:text-xl font-serifHeading font-bold text-emeraldCustom-900 mb-1">Waktu & Pelaksanaan</h3>
             <p class="text-xs text-stone-500 mb-5">Insya Allah acara akan dilaksanakan pada:</p>
 
@@ -282,9 +285,25 @@
                     <i class="fa-solid fa-calendar-day text-base"></i>
                     <span class="font-bold text-sm sm:text-base tracking-wide">Minggu, 29 November 2026</span>
                 </div>
-                <div class="flex items-center justify-center gap-2 text-stone-200 text-xs font-light">
+                <div class="flex items-center justify-center gap-2 text-stone-200 text-xs font-light mb-4">
                     <i class="fa-regular fa-clock text-goldCustom-400"></i>
                     <span>Pukul 14.00 WIB – Selesai</span>
+                </div>
+
+                <!-- Agenda Acara & Sesi RAMAH TAMAH -->
+                <div class="pt-4 border-t border-goldCustom-500/30 text-xs text-stone-200 bg-emeraldCustom-950/80 -mx-5 -mb-5 p-4 sm:p-5">
+                    <!-- Box Sesi Ramah Tamah (Elegan, Anggun & Tidak Terlalu Mencolok) -->
+                    <div class="relative bg-emeraldCustom-900/90 py-4 px-5 rounded-2xl border border-goldCustom-400/50 shadow-md backdrop-blur-md overflow-hidden">
+                        <div class="flex items-center justify-center gap-2 mb-1.5">
+                            <span class="text-[10px] uppercase tracking-[0.2em] font-semibold text-goldCustom-300">Rangkaian Acara</span>
+                        </div>
+                        
+                        <h4 class="text-xl sm:text-2xl font-serifHeading font-bold text-gold-gradient tracking-widest uppercase py-0.5">
+                            RAMAH TAMAH
+                        </h4>
+                        <div class="w-16 h-px bg-goldCustom-500/40 mx-auto my-1.5"></div>
+                        <p class="text-xs text-stone-300 font-light italic">Bersilaturahmi & Doa Restu Bersama Keluarga</p>
+                    </div>
                 </div>
             </div>
 
@@ -459,6 +478,10 @@
             if (guest) {
                 document.getElementById('guestName').innerText = guest;
             }
+            
+            // Catatan: Jika ingin menyetel volume maksimal audio secara manual
+            const audioElem = document.getElementById('bgAudio');
+            if(audioElem) audioElem.volume = 1.0;
         });
 
         // Buka Undangan Logic
@@ -470,7 +493,7 @@
             setTimeout(() => {
                 cover.style.display = 'none';
                 mainContent.classList.remove('hidden');
-                // Play audio background Islami
+                // Play audio background Islami dengan volume maksimal
                 startAudio();
                 // Trigger Confetti Celebration
                 confetti({
@@ -484,44 +507,54 @@
         // HTML5 Audio Controller (Lagu Islami)
         const audio = document.getElementById('bgAudio');
         let isPlaying = false;
+        let isPlayPending = false;
 
         function startAudio() {
-            if (!audio) return;
-            audio.play().then(() => {
-                isPlaying = true;
-                updateAudioBtnUI();
-            }).catch(err => {
-                console.log("Autoplay tercegah oleh browser:", err);
-            });
+            if (!audio || isPlayPending) return;
+            audio.volume = 1.0; // Set volume ke 100% (Maksimal)
+            isPlayPending = true;
+
+            const playPromise = audio.play();
+            if (playPromise !== undefined) {
+                playPromise.then(() => {
+                    isPlayPending = false;
+                    isPlaying = true;
+                    updateAudioBtnUI();
+                }).catch(err => {
+                    isPlayPending = false;
+                    isPlaying = false;
+                    updateAudioBtnUI();
+                    console.log("Autoplay tercegah atau terinterupsi:", err);
+                });
+            }
         }
 
         function toggleAudio() {
             if (!audio) return;
+            
             if (isPlaying) {
                 audio.pause();
                 isPlaying = false;
+                updateAudioBtnUI();
             } else {
-                audio.play();
-                isPlaying = true;
+                startAudio();
             }
-            updateAudioBtnUI();
         }
 
         function updateAudioBtnUI() {
             const icon = document.getElementById('audioIcon');
             const btn = document.getElementById('audioBtn');
             if (isPlaying) {
-                icon.className = "fa-solid fa-compact-disc text-goldCustom-400 animate-spin";
-                btn.classList.add("border-goldCustom-400");
+                icon.className = 'fa-solid fa-compact-disc animate-spin';
+                btn.classList.add('border-goldCustom-400');
             } else {
-                icon.className = "fa-solid fa-volume-xmark text-stone-400";
-                btn.classList.remove("border-goldCustom-400");
+                icon.className = 'fa-solid fa-music';
+                btn.classList.remove('border-goldCustom-400');
             }
         }
 
         // Countdown Timer Logic
         const targetDate = new Date("November 29, 2026 14:00:00").getTime();
-
         const countdownInterval = setInterval(() => {
             const now = new Date().getTime();
             const difference = targetDate - now;
@@ -540,112 +573,85 @@
             const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
             const seconds = Math.floor((difference % (1000 * 60)) / 1000);
 
-            document.getElementById('days').innerText = days < 10 ? '0' + days : days;
-            document.getElementById('hours').innerText = hours < 10 ? '0' + hours : hours;
-            document.getElementById('minutes').innerText = minutes < 10 ? '0' + minutes : minutes;
-            document.getElementById('seconds').innerText = seconds < 10 ? '0' + seconds : seconds;
+            document.getElementById('days').innerText = String(days).padStart(2, '0');
+            document.getElementById('hours').innerText = String(hours).padStart(2, '0');
+            document.getElementById('minutes').innerText = String(minutes).padStart(2, '0');
+            document.getElementById('seconds').innerText = String(seconds).padStart(2, '0');
         }, 1000);
 
-        // Submit Comment Simulation & Send to WhatsApp
-        function submitComment(e) {
-            e.preventDefault();
-            const name = document.getElementById('senderName').value;
-            const attendance = document.getElementById('attendance').value;
-            const message = document.getElementById('senderMessage').value;
-
-            const newComment = document.createElement('div');
-            newComment.className = 'bg-white p-3.5 rounded-2xl border border-stone-200 text-xs shadow-sm animate-pulse';
-            
-            let badgeColor = "bg-emeraldCustom-100 text-emeraldCustom-800";
-            if (attendance === "Tidak Hadir") badgeColor = "bg-rose-100 text-rose-800";
-            if (attendance === "Ragu-ragu") badgeColor = "bg-amber-100 text-amber-800";
-
-            newComment.innerHTML = `
-                <div class="flex justify-between items-center mb-1.5">
-                    <span class="font-bold text-emeraldCustom-900">${escapeHtml(name)}</span>
-                    <span class="${badgeColor} text-[9px] px-2.5 py-0.5 rounded-full font-bold">${attendance}</span>
-                </div>
-                <p class="text-stone-600 italic leading-relaxed">"${escapeHtml(message)}"</p>
-            `;
-
-            const list = document.getElementById('commentsList');
-            list.insertBefore(newComment, list.firstChild);
-
-            setTimeout(() => {
-                newComment.classList.remove('animate-pulse');
-            }, 1000);
-
-            const waNumber = "6283106592023";
-            const waText = `Assalamu'alaikum Wr. Wb.
-
-*Ucapan & RSVP Khitanan Hasya Shakiell Mauza (Moza)*
-
-*Nama:* ${name}
-*Konfirmasi Kehadiran:* ${attendance}
-
-*Pesan / Doa:*
-"${message}"
-
-Terima Kasih.`;
-
-            const waUrl = `https://wa.me/${waNumber}?text=${encodeURIComponent(waText)}`;
-            
-            document.getElementById('commentForm').reset();
-            window.open(waUrl, '_blank');
-        }
-
-        function escapeHtml(text) {
-            return text
-                .replace(/&/g, "&amp;")
-                .replace(/</g, "&lt;")
-                .replace(/>/g, "&gt;")
-                .replace(/"/g, "&quot;")
-                .replace(/'/g, "&#039;");
-        }
-
-        // Salin Teks ke Clipboard
-        function copyToClipboard(text) {
-            const tempInput = document.createElement('input');
-            tempInput.value = text;
-            document.body.appendChild(tempInput);
-            tempInput.select();
-            document.execCommand('copy');
-            document.body.removeChild(tempInput);
-
-            const toast = document.getElementById('copyToast');
-            toast.classList.remove('hidden');
-            setTimeout(() => {
-                toast.classList.add('hidden');
-            }, 2500);
-        }
-
-        // Send Gift Confirmation to WhatsApp
-        function sendGiftConfirmationWA() {
-            const waNumber = "6283106592023";
-            const waText = `Assalamu'alaikum Wr. Wb.
-
-*Konfirmasi Hadiah / Amplop Digital Khitanan Hasya Shakiell Mauza (Moza)*
-
-*Atas Nama:* 
-*Jumlah / Kado:* 
-*Catatan:* 
-
-Terima Kasih atas berkah dan doanya untuk ananda Moza.`;
-
-            const waUrl = `https://wa.me/${waNumber}?text=${encodeURIComponent(waText)}`;
-            window.open(waUrl, '_blank');
-        }
-
-        // Save event to Google Calendar
+        // Save Calendar Event Function
         function saveToCalendar() {
             const title = encodeURIComponent("Syukuran Khitanan Hasya Shakiell Mauza (Moza)");
             const details = encodeURIComponent("Syukuran Khitanan Putra Ke-2 dari Bapak FERI OKTOROZA & Ibu MAZIDATUSSA'ADAH (IDA)");
             const location = encodeURIComponent("Rumah Ibu IDA, Klego Gg. 3 Segorek RT 06 RW 02 (Gang Pom Bensin Mini)");
-            const startDate = "20261129T070000Z";
-            const endDate = "20261129T110000Z";
+            const startDate = "20261129T140000";
+            const endDate = "20261129T180000";
 
-            const calendarUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${startDate}/${endDate}&details=${details}&location=${location}`;
-            window.open(calendarUrl, '_blank');
+            const googleCalendarUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${startDate}/${endDate}&details=${details}&location=${location}`;
+            window.open(googleCalendarUrl, '_blank');
+        }
+
+        // Salin Rekening Logic
+        function copyToClipboard(text) {
+            const dummy = document.createElement("textarea");
+            document.body.appendChild(dummy);
+            dummy.value = text;
+            dummy.select();
+            document.execCommand("copy");
+            document.body.removeChild(dummy);
+
+            const toast = document.getElementById("copyToast");
+            toast.classList.remove("hidden");
+            setTimeout(() => {
+                toast.classList.add("hidden");
+            }, 3000);
+        }
+
+        // Send Gift Confirmation WA
+        function sendGiftConfirmationWA() {
+            const phoneNumber = "6283106592023";
+            const message = `Assalamu'alaikum Warahmatullahi Wabarakatuh,\n\nSaya ingin mengirimkan konfirmasi tanda kasih / kado digital untuk acara syukuran khitanan *Hasya Shakiell Mauza (Moza)*.\n\nTerima kasih.`;
+            const waUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+            window.open(waUrl, '_blank');
+        }
+
+        // Submit Comment & Send to WhatsApp
+        function submitComment(event) {
+            event.preventDefault();
+            const name = document.getElementById('senderName').value;
+            const status = document.getElementById('attendance').value;
+            const message = document.getElementById('senderMessage').value;
+
+            if (!name || !message) return;
+
+            // Tambahkan ucapan ke daftar tampilan di web
+            const commentsList = document.getElementById('commentsList');
+            const newComment = document.createElement('div');
+            newComment.className = 'bg-white p-3.5 rounded-2xl border border-stone-200 text-xs shadow-sm animate-fade-in';
+            newComment.innerHTML = `
+                <div class="flex justify-between items-center mb-1.5">
+                    <span class="font-bold text-emeraldCustom-900">${name}</span>
+                    <span class="bg-emeraldCustom-100 text-emeraldCustom-800 text-[9px] px-2.5 py-0.5 rounded-full font-bold">${status}</span>
+                </div>
+                <p class="text-stone-600 italic leading-relaxed">"${message}"</p>
+            `;
+            commentsList.prepend(newComment);
+
+            // Redirect ke WhatsApp 6283106592023
+            const phoneNumber = "6283106592023";
+            const waText = `Assalamu'alaikum Warahmatullahi Wabarakatuh,\n\n` +
+                `*Nama:* ${name}\n` +
+                `*Konfirmasi Kehadiran:* ${status}\n\n` +
+                `*Ucapan & Doa Restu:*\n"${message}"\n\n` +
+                `Selamat atas khitanan ananda Hasya Shakiell Mauza (Moza).`;
+
+            const waUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(waText)}`;
+            
+            // Reset form
+            document.getElementById('commentForm').reset();
+            
+            // Buka WhatsApp
+            window.open(waUrl, '_blank');
         }
     </script>
 </body>
